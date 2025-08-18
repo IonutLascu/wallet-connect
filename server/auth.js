@@ -5,7 +5,6 @@ import bcrypt from "bcrypt";
 
 const router = Router();
 
-// ENV (set via .env or docker-compose)
 const JWT_SECRET = process.env.JWT_SECRET
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL
 const ADMIN_PASSWORD_HASH = process.env.ADMIN_PASSWORD_HASH

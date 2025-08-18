@@ -19,21 +19,24 @@ const SettingSchema = new mongoose.Schema({
   walletConnectPromptIcons: String,
   walletConnectHowToBuyUrl: String,
   walletConnectNoWalletUrl: String,
-});
+}, { timestamps: true });
 
 const Settings = mongoose.model("Settings", SettingSchema);
 
 // --- Routes ---
-router.get("/settings", async (_req, res) => {
+// GET /api/settings
+router.get("/", async (_req, res) => {
   try {
     const settings = await Settings.findOne({});
     res.json(settings || {});
   } catch (err) {
+    console.error("Failed to fetch settings:", err);
     res.status(500).json({ error: "Failed to fetch settings" });
   }
 });
 
-router.post("/settings", requireAuth, async (req, res) => {
+// POST /api/settings
+router.post("/", requireAuth, async (req, res) => {
   try {
     const data = req.body || {};
     let settings = await Settings.findOne({});
@@ -45,6 +48,7 @@ router.post("/settings", requireAuth, async (req, res) => {
     }
     res.json(settings);
   } catch (err) {
+    console.error("Failed to save settings:", err);
     res.status(500).json({ error: "Failed to save settings" });
   }
 });
