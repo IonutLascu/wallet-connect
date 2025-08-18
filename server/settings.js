@@ -25,7 +25,7 @@ const Settings = mongoose.model("Settings", SettingSchema);
 
 // --- Routes ---
 // GET /api/settings
-router.get("/", async (_req, res) => {
+router.get("/", requireAuth, async (_req, res) => {
   try {
     const settings = await Settings.findOne({});
     res.json(settings || {});
