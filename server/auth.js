@@ -1,15 +1,14 @@
 // auth.js
 import { Router } from "express";
 import jwt from "jsonwebtoken";
-import bcrypt from "bcrypt";
 
 const router = Router();
 
-const JWT_SECRET = process.env.JWT_SECRET
-const ADMIN_EMAIL = process.env.ADMIN_EMAIL
-const ADMIN_PASSWORD_HASH = process.env.ADMIN_PASSWORD_HASH
+const JWT_SECRET = process.env.JWT_SECRET;
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL;
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD; // <- plain password from .env
 
-// ---- middleware (named export)
+// ---- middleware
 export function requireAuth(req, res, next) {
   const auth = req.headers.authorization || "";
   const [, token] = auth.split(" ");
@@ -33,11 +32,9 @@ router.post("/login", async (req, res) => {
   if (!email || !password) {
     return res.status(400).json({ error: "Email and password required" });
   }
-  if (email !== ADMIN_EMAIL) {
+  if (email !== ADMIN_EMAIL || password !== ADMIN_PASSWORD) {
     return res.status(401).json({ error: "Invalid credentials" });
   }
-  const ok = await bcrypt.compare(password, ADMIN_PASSWORD_HASH);
-  if (!ok) return res.status(401).json({ error: "Invalid credentials" });
 
   const token = signJwt({ sub: ADMIN_EMAIL, role: "admin" });
   res.json({ token });
@@ -47,5 +44,4 @@ router.get("/me", requireAuth, (req, res) => {
   res.json({ email: ADMIN_EMAIL, role: "admin" });
 });
 
-// default export = router
 export default router;
