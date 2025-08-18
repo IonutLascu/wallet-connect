@@ -7,28 +7,34 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const app = express();
+
+// allow dev + optional prod URL
+const allowedOrigins = new Set([
+  "http://localhost:3000",
+  "http://127.0.0.1:3000",
+].filter(Boolean));
+
 const corsOptions = {
-  origin: ['http://localhost:3000'], // Allow both dev server ports
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: true
+  origin(origin, cb) {
+    if (!origin || allowedOrigins.has(origin)) return cb(null, true);
+    return cb(new Error(`Not allowed by CORS: ${origin}`));
+  },
+  credentials: true,
+  methods: ["GET", "HEAD", "PUT", "PATCH", "POST", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
 };
 
 app.use(cors(corsOptions));
+// (optional, but helps some setups with manual preflights)
+app.options("*", cors(corsOptions));
+
 app.use(express.json());
 
 // ---- DB ----
 const mongoUri = process.env.MONGO_URI || "mongodb://localhost:27017/zetex";
-async function connectDB() {
-  try {
-    await mongoose.connect(mongoUri);
-    console.log("Connected to MongoDB");
-  } catch (err) {
-    console.error("MongoDB connection error:", err.message || err);
-    // don’t exit – allow app to run in dev even if DB is not available
-  }
-}
-connectDB();
+mongoose.connect(mongoUri)
+  .then(() => console.log("Connected to MongoDB"))
+  .catch(err => console.error("MongoDB connection error:", err.message || err));
 
 // ---- Routes ----
 app.use("/api", routes);
@@ -36,5 +42,5 @@ app.use("/api", routes);
 // ---- Server ----
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-  console.log("Server running on http://localhost:${PORT}");
+  console.log(`Server running on http://localhost:${PORT}`);
 });
