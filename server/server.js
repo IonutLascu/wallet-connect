@@ -8,7 +8,9 @@ dotenv.config();
 
 const app = express();
 const corsOptions = {
-  origin: process.env.CLIENT_URL,
+  origin: ['http://localhost:3000'], // Allow both dev server ports
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true
 };
 
