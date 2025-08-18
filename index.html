@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Zetex ICO Standalone</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="js/jquery-3.7.1.min.js"></script>
+  <script src="js/ethers-5.0.umd.min.js"></script>
+  <script type="module" src="js/tokensale.ui.js"></script>
+</head>
+<body>
+  <div id="app">
+    <!-- The same HTML widget from the plugin goes here -->
+  </div>
+
+  <script>
+    async function loadSettings() {
+      const res = await fetch("http://localhost:3000/settings");
+      const cfg = await res.json();
+
+      // inject globals for tokensale.ui.js
+      window.contractAddressSale = cfg.contractAddressSale;
+      window.contractAddressSaleRate = cfg.contractAddressSaleRate;
+      window.contractAddressToken = cfg.contractAddressToken;
+      window.contractAddressTokenSymbol = cfg.contractAddressTokenSymbol;
+
+      window.walletConnectProjectId = cfg.walletConnectProjectId;
+      window.walletConnectNetworkId = cfg.walletConnectNetworkId;
+      window.walletConnectPromptTitle = cfg.walletConnectPromptTitle;
+      window.walletConnectPromptDesc = cfg.walletConnectPromptDesc;
+      window.walletConnectPromptUrl = cfg.walletConnectPromptUrl;
+      window.walletConnectPromptIcons = cfg.walletConnectPromptIcons;
+      window.walletConnectHowToBuyUrl = cfg.walletConnectHowToBuyUrl;
+      window.walletConnectNoWalletUrl = cfg.walletConnectNoWalletUrl;
+
+      // after globals set, call init logic
+      if (typeof init === "function") init();
+    }
+    loadSettings();
+  </script>
+</body>
+</html>
