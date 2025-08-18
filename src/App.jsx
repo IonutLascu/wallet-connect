@@ -17,6 +17,7 @@ const App = () => {
   return (
     <div id="app">
       <TokenSaleWidget settings={settings} />
+      da ce ti-am facut ma?
     </div>
   );
 };
