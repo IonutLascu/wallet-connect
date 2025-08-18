@@ -21,45 +21,62 @@ const SettingSchema = new mongoose.Schema({
   walletConnectNoWalletUrl: String,
 }, { timestamps: true });
 
-const Settings = mongoose.model("Settings", SettingSchema);
+const Settings = mongoose.models.Settings || mongoose.model("Settings", SettingSchema);
 
-// --- Routes ---
-router.get("/all", requireAuth, async (_req, res) => {
+router.get("/", requireAuth, async (_req, res) => {
   try {
-    const settingsList = await Settings.find({});
-    res.json(settingsList);
+    const list = await Settings.find({}).lean();
+    res.json(list);
   } catch (err) {
-    console.error("Failed to fetch all settings:", err);
-    res.status(500).json({ error: "Failed to fetch all settings" });
+    console.error("Failed to fetch settings list:", err);
+    res.status(500).json({ error: "Failed to fetch settings list" });
   }
 });
 
-// GET /api/settings
-router.get("/", requireAuth, async (_req, res) => {
+router.get("/:id", requireAuth, async (req, res) => {
   try {
-    const settings = await Settings.findOne({});
-    res.json(settings || {});
+    const doc = await Settings.findById(req.params.id).lean();
+    if (!doc) return res.status(404).json({ error: "Not found" });
+    res.json(doc);
   } catch (err) {
-    console.error("Failed to fetch settings:", err);
+    console.error("Failed to fetch settings by id:", err);
     res.status(500).json({ error: "Failed to fetch settings" });
   }
 });
 
-// POST /api/settings
 router.post("/", requireAuth, async (req, res) => {
   try {
-    const data = req.body || {};
-    let settings = await Settings.findOne({});
-    if (settings) {
-      Object.assign(settings, data);
-      await settings.save();
-    } else {
-      settings = await Settings.create(data);
-    }
-    res.json(settings);
+    const created = await Settings.create(req.body || {});
+    res.status(201).json(created);
   } catch (err) {
-    console.error("Failed to save settings:", err);
-    res.status(500).json({ error: "Failed to save settings" });
+    console.error("Failed to create settings:", err);
+    res.status(500).json({ error: "Failed to create settings" });
+  }
+});
+
+router.put("/:id", requireAuth, async (req, res) => {
+  try {
+    const updated = await Settings.findByIdAndUpdate(
+      req.params.id,
+      { $set: req.body || {} },
+      { new: true }
+    );
+    if (!updated) return res.status(404).json({ error: "Not found" });
+    res.json(updated);
+  } catch (err) {
+    console.error("Failed to update settings:", err);
+    res.status(500).json({ error: "Failed to update settings" });
+  }
+});
+
+router.delete("/:id", requireAuth, async (req, res) => {
+  try {
+    const deleted = await Settings.findByIdAndDelete(req.params.id);
+    if (!deleted) return res.status(404).json({ error: "Not found" });
+    res.json({ ok: true });
+  } catch (err) {
+    console.error("Failed to delete settings:", err);
+    res.status(500).json({ error: "Failed to delete settings" });
   }
 });
 
