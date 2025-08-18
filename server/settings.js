@@ -24,6 +24,16 @@ const SettingSchema = new mongoose.Schema({
 const Settings = mongoose.model("Settings", SettingSchema);
 
 // --- Routes ---
+router.get("/all", requireAuth, async (_req, res) => {
+  try {
+    const settingsList = await Settings.find({});
+    res.json(settingsList);
+  } catch (err) {
+    console.error("Failed to fetch all settings:", err);
+    res.status(500).json({ error: "Failed to fetch all settings" });
+  }
+});
+
 // GET /api/settings
 router.get("/", requireAuth, async (_req, res) => {
   try {
