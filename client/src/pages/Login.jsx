@@ -15,7 +15,7 @@ export default function Login() {
     try {
       const { token } = await login(email, password);
       localStorage.setItem('token', token);
-      window.location.href = '/admin';
+      window.location.href = '/settings';
     } catch (err) {
       setError(err.message || 'Login failed');
     } finally {
